@@ -1,0 +1,67 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" version="27.0.6">
+  <diagram name="Arquitetura Completa" id="arquitetura-completa">
+    <mxGraphModel dx="1360" dy="759" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lb" value="Load Balancer" style="shape=rectangle;rounded=1;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#B0BEC5;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="400" y="20" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fe" value="Frontend Web (React)" style="shape=rectangle;rounded=1;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#66BB6A;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="400" y="120" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="be" value="Backend (Java – Spring Boot)" style="shape=rectangle;rounded=1;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#3949AB;fontSize=12;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="400" y="270" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sql" value="PostgreSQL" style="shape=cylinder;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#42A5F5;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="710" y="270" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nosql" value="MongoDB" style="shape=cylinder;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#1E88E5;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="170" y="350" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cache" value="Redis (Cache/Broker)" style="shape=rectangle;rounded=1;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#E53935;fontSize=12;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="430" y="500" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="worker" value="Worker Assíncrono" style="shape=rectangle;rounded=1;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#EF6C00;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="420" y="660" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" value="Requisição HTTP" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;strokeColor=#000000;strokeWidth=2;" parent="1" source="lb" target="fe" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" value="Requisição API" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;strokeColor=#000000;strokeWidth=2;" parent="1" source="fe" target="be" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" value="Consulta SQL" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;strokeColor=#000000;strokeWidth=2;" parent="1" source="be" target="sql" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" value="Consulta NoSQL" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;strokeColor=#000000;strokeWidth=2;" parent="1" source="be" target="nosql" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c5" value="Consulta Cache" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;strokeColor=#000000;strokeWidth=2;" parent="1" source="be" target="cache" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="320" />
+              <mxPoint x="540" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c6" value="Publica Job" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;strokeColor=#000000;strokeWidth=2;curved=1;entryX=0.836;entryY=-0.05;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" target="cache" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="310" as="sourcePoint" />
+            <mxPoint x="560" y="480" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="590" y="310" />
+              <mxPoint x="590" y="425" />
+              <mxPoint x="560" y="425" />
+              <mxPoint x="560" y="490" />
+              <mxPoint x="547" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c7" value="Consome Job" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;strokeColor=#000000;strokeWidth=2;" parent="1" source="cache" target="worker" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

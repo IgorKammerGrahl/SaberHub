@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: elearning
+      POSTGRES_PASSWORD: securepass123
+      POSTGRES_DB: elearning_db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - elearning-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elearning -d elearning_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:6
+    container_name: mongo_db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: mongopass123
+      MONGO_INITDB_DATABASE: elearning
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - elearning-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "-u", "root", "-p", "mongopass123", "--authenticationDatabase", "admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis_server
+    command: redis-server --requirepass redispass123 --bind 0.0.0.0 
+    environment:
+      REDIS_PASSWORD: redispass123
+    ports:
+      - "6379:6379"
+      - "8001:8001"  # RedisInsight UI
+    volumes:
+      - redis_data:/data
+    networks:
+      - elearning-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redispass123", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: spring_backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - elearning-net
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/elearning_db
+      SPRING_DATA_MONGODB_URI: mongodb://root:mongopass123@mongo_db:27017/elearning?authSource=admin&authMechanism=SCRAM-SHA-256
+      SPRING_REDIS_HOST: redis_server
+      SPRING_REDIS_PASSWORD: redispass123
+      JWT_SECRET: mySecretKey1234567890abcdefghijklmnopqrstuvwxyz 
+      JWT_EXPIRATION: 86400 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      
+
+networks:
+  elearning-net:
+    driver: bridge
+
+volumes:
+  pg_data:
+  mongo_data:
+  redis_data:
