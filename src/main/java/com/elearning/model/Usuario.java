@@ -2,9 +2,10 @@ package com.elearning.model;
 
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "usuarios")
@@ -19,10 +20,17 @@ public class Usuario implements UserDetails {
     
     @Column(nullable = false)
     private String senha;
-    
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
+    // Métodos do UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList(); 
+        return this.role.getPermissoes().stream()
+            .map(permissao -> new SimpleGrantedAuthority(permissao.getPermissao()))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -58,8 +66,13 @@ public class Usuario implements UserDetails {
     // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    
     public String getSenha() { return senha; }
     public void setSenha(String senha) { this.senha = senha; }
+    
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 }

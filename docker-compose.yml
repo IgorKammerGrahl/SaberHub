@@ -42,7 +42,7 @@ services:
   redis:
     image: redis:7.2-alpine
     container_name: redis_server
-    command: redis-server --requirepass redispass123 --bind 0.0.0.0 
+    command: redis-server --requirepass redispass123 --bind 0.0.0.0
     environment:
       REDIS_PASSWORD: redispass123
     ports:
@@ -73,18 +73,36 @@ services:
     networks:
       - elearning-net
     environment:
+      # Perfil Spring a ser ativado
+      SPRING_PROFILES_ACTIVE: docker
+
+      # Datasource (PostgreSQL)
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/elearning_db
+      SPRING_DATASOURCE_USERNAME: elearning
+      SPRING_DATASOURCE_PASSWORD: securepass123
+
+      # Flyway
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres_db:5432/elearning_db
+      SPRING_FLYWAY_USER: elearning
+      SPRING_FLYWAY_PASSWORD: securepass123
+
+      # MongoDB
       SPRING_DATA_MONGODB_URI: mongodb://root:mongopass123@mongo_db:27017/elearning?authSource=admin&authMechanism=SCRAM-SHA-256
-      SPRING_REDIS_HOST: redis_server
-      SPRING_REDIS_PASSWORD: redispass123
-      JWT_SECRET: mySecretKey1234567890abcdefghijklmnopqrstuvwxyz 
-      JWT_EXPIRATION: 86400 
+
+      # Redis (corrigido)
+      SPRING_DATA_REDIS_HOST: redis_server
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: redispass123
+
+      # JWT
+      JWT_SECRET: mySecretKey1234567890abcdefghijklmnopqrstuvwxyz
+      JWT_EXPIRATION: 86400
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 5
-      
 
 networks:
   elearning-net:

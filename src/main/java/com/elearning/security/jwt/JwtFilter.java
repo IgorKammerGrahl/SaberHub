@@ -6,52 +6,67 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.stereotype.Component;
-
+import org.springframework.web.filter.OncePerRequestFilter;
+import io.jsonwebtoken.Claims;
 import java.io.IOException;
+import java.util.List;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.Collections; 
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
 
-    public JwtFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+    public JwtFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
+    }
+
+     @Override
+    protected void doFilterInternal(
+        @NonNull HttpServletRequest request, 
+        @NonNull HttpServletResponse response, 
+        @NonNull FilterChain chain
+    ) throws ServletException, IOException {
+        
+        String token = getTokenFromRequest(request);
+        if (token != null && jwtUtil.validateToken(token)) {
+            Claims claims = jwtUtil.extractAllClaims(token);
+            String username = claims.getSubject();
+            
+            @SuppressWarnings("unchecked")
+            List<String> roles = claims.get("roles", List.class);
+            if (roles == null) {
+                roles = Collections.emptyList(); // Evita NullPointerException
+            }
+
+            Collection<SimpleGrantedAuthority> authorities = roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role)) // Prefixo padrão do Spring
+                .collect(Collectors.toList());
+            
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                username, null, authorities
+            );
+            SecurityContextHolder.getContext().setAuthentication(auth);
+        }
+        chain.doFilter(request, response);
+    }
+
+    private String getTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
     @Override
-    protected void doFilterInternal(
-        @NonNull HttpServletRequest request,      // Adicione @NonNull
-        @NonNull HttpServletResponse response,    // Adicione @NonNull
-        @NonNull FilterChain filterChain          // Adicione @NonNull
-    ) throws ServletException, IOException {
-        
-        final String authorizationHeader = request.getHeader("Authorization");
-        String username = null;
-        String jwt = null;
-
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);
-        }
-
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authenticationToken = 
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            }
-        }
-        filterChain.doFilter(request, response);
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        // Ignora rotas públicas (ex: login, registro)
+        return request.getServletPath().startsWith("/api/auth/");
     }
 }

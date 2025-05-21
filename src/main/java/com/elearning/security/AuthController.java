@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.elearning.model.Role;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -61,7 +63,9 @@ public class AuthController {
         }
         
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+        usuario.setRole(Role.USER); // ⬅️ Nova linha importante!
         usuarioRepository.save(usuario);
+        
         return ResponseEntity.ok("Usuário registrado com sucesso!");
     }
 }
