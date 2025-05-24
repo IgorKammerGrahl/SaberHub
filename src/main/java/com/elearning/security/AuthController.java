@@ -1,17 +1,23 @@
 package com.elearning.security;
 
 import com.elearning.model.Usuario;
-import com.elearning.repository.UsuarioRepository;
+import com.elearning.repository.postgres.UsuarioRepository;
 import com.elearning.security.jwt.JwtUtil;
 import com.elearning.security.payload.LoginRequest;
 import com.elearning.security.payload.LoginResponse;
+
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,11 +67,26 @@ public class AuthController {
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
             return ResponseEntity.badRequest().body("Email já está em uso!");
         }
-        
-        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
-        usuario.setRole(Role.USER); // ⬅️ Nova linha importante!
-        usuarioRepository.save(usuario);
-        
+
+        // Evitar persistir diretamente o objeto vindo da requisição
+        Usuario novoUsuario = new Usuario(
+            usuario.getEmail(),
+            passwordEncoder.encode(usuario.getSenha()),
+            Role.USER
+        );
+
+        usuarioRepository.save(novoUsuario);
+
         return ResponseEntity.ok("Usuário registrado com sucesso!");
+    }
+
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateToken(Authentication authentication) {
+        return ResponseEntity.ok(Map.of(
+            "username", authentication.getName(),
+            "authorities", authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList())
+        ));
     }
 }

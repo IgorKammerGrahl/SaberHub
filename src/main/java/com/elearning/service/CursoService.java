@@ -1,7 +1,8 @@
 package com.elearning.service;
 
 import com.elearning.model.Curso;
-import com.elearning.repository.CursoRepository;
+import com.elearning.repository.mongo.CursoRepository;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;

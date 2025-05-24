@@ -6,27 +6,27 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import io.jsonwebtoken.Claims;
-import java.io.IOException;
-import java.util.List;
-import java.util.Collection;
-import java.util.stream.Collectors;
-import java.util.Collections; 
 
+import com.elearning.service.UsuarioServiceImpl;
+
+import java.io.IOException;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final UsuarioServiceImpl usuarioService;
 
-    public JwtFilter(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
-
-     @Override
+    @Override
     protected void doFilterInternal(
         @NonNull HttpServletRequest request, 
         @NonNull HttpServletResponse response, 
@@ -34,24 +34,25 @@ public class JwtFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         
         String token = getTokenFromRequest(request);
-        if (token != null && jwtUtil.validateToken(token)) {
-            Claims claims = jwtUtil.extractAllClaims(token);
-            String username = claims.getSubject();
-            
-            @SuppressWarnings("unchecked")
-            List<String> roles = claims.get("roles", List.class);
-            if (roles == null) {
-                roles = Collections.emptyList(); // Evita NullPointerException
-            }
+        log.debug("🔑 Token recebido: {}", token);
 
-            Collection<SimpleGrantedAuthority> authorities = roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role)) // Prefixo padrão do Spring
-                .collect(Collectors.toList());
-            
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                username, null, authorities
-            );
+        if (token != null && jwtUtil.validateToken(token)) {
+            log.debug("✅ Token válido");
+            String username = jwtUtil.extractUsername(token);
+            log.debug("👤 Usuário extraído: {}", username);
+
+            UserDetails userDetails = usuarioService.loadUserByUsername(username);
+            log.debug("🔓 Autoridades carregadas: {}", userDetails.getAuthorities());
+
+            UsernamePasswordAuthenticationToken auth = 
+                new UsernamePasswordAuthenticationToken(
+                    userDetails, 
+                    null, 
+                    userDetails.getAuthorities()
+                );
             SecurityContextHolder.getContext().setAuthentication(auth);
+        } else {
+            log.error("❌ Token inválido ou ausente");
         }
         chain.doFilter(request, response);
     }
@@ -66,7 +67,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-        // Ignora rotas públicas (ex: login, registro)
         return request.getServletPath().startsWith("/api/auth/");
     }
 }

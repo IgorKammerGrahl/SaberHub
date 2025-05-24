@@ -2,9 +2,14 @@ package com.elearning.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+
+import lombok.Data;
+
 import java.util.Date;
 import java.util.List;
 
+@Data
 @Document(collection = "cursos") // Mapeia para a coleção "cursos" no MongoDB
 public class Curso {
     @Id // Identificador único do MongoDB
@@ -13,7 +18,10 @@ public class Curso {
     private String titulo;
     private String descricao;
     private List<String> categorias;
-    private Date dataCriacao = new Date(); // Valor padrão
+    private Date dataCriacao = new Date();
+
+    private Double mediaAvaliacoes;
+    private Integer totalAvaliacoes;
     
     // Construtores
     public Curso() {}

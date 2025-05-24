@@ -1,4 +1,4 @@
-package com.elearning.repository;
+package com.elearning.repository.postgres;
 
 import com.elearning.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;

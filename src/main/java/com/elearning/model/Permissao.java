@@ -4,6 +4,7 @@ public enum Permissao {
     ADMIN_LEITURA("admin:leitura"),
     ADMIN_ESCRITA("admin:escrita"),
     USER_LEITURA("user:leitura");
+    
 
     private final String permissao;
 

@@ -95,9 +95,14 @@ services:
       SPRING_DATA_REDIS_PASSWORD: redispass123
 
       # JWT
-      JWT_SECRET: mySecretKey1234567890abcdefghijklmnopqrstuvwxyz
+      JWT_SECRET: mySecretKey1234567890abcdefghijklmnopqrstuv
       JWT_EXPIRATION: 86400
 
+      # Logging detalhado
+      LOGGING_LEVEL_COM_ELEARNING: DEBUG
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: DEBUG
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB: DEBUG
+      
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s

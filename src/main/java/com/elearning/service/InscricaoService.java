@@ -1,7 +1,9 @@
 package com.elearning.service;
 
 import com.elearning.model.*;
-import com.elearning.repository.*;
+import com.elearning.repository.mongo.CursoRepository;
+import com.elearning.repository.postgres.InscricaoRepository;
+import com.elearning.repository.postgres.UsuarioRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

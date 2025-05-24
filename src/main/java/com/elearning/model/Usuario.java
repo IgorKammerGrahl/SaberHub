@@ -1,23 +1,28 @@
 package com.elearning.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "usuarios")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Usuario implements UserDetails {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(unique = true, nullable = false)
     private String email;
-    
+
     @Column(nullable = false)
     private String senha;
 
@@ -25,13 +30,17 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
-    // Métodos do UserDetails
+    public Usuario(String email, String senha, Role role) {
+        this.email = email;
+        this.senha = senha;
+        this.role = role;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.role.getPermissoes().stream()
-            .map(permissao -> new SimpleGrantedAuthority(permissao.getPermissao()))
-            .collect(Collectors.toList());
+        return this.role.getAuthorities(); // Usa o método getAuthorities() da Role
     }
+
 
     @Override
     public String getPassword() {
@@ -62,17 +71,4 @@ public class Usuario implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-    // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    
-    public String getSenha() { return senha; }
-    public void setSenha(String senha) { this.senha = senha; }
-    
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
 }
