@@ -38,7 +38,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.role.getAuthorities(); // Usa o método getAuthorities() da Role
+        return this.role.getAuthorities();
     }
 
 

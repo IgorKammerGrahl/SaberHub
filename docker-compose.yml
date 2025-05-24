@@ -26,7 +26,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: mongopass123
-      MONGO_INITDB_DATABASE: elearning
     volumes:
       - mongo_data:/data/db
     ports:
@@ -47,7 +46,6 @@ services:
       REDIS_PASSWORD: redispass123
     ports:
       - "6379:6379"
-      - "8001:8001"  # RedisInsight UI
     volumes:
       - redis_data:/data
     networks:
@@ -73,38 +71,32 @@ services:
     networks:
       - elearning-net
     environment:
-      # Perfil Spring a ser ativado
+      # Configurações Essenciais
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_LOCATION: classpath:/application.properties  # Ignora arquivos externos
+      JWT_SECRET: "sua_chave_secreta_super_forte_aqui_base64_pelo_menos_32_bytes"
+      JWT_EXPIRATION: "86400"
 
-      # Datasource (PostgreSQL)
+      # Conexão com PostgreSQL
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/elearning_db
       SPRING_DATASOURCE_USERNAME: elearning
       SPRING_DATASOURCE_PASSWORD: securepass123
 
-      # Flyway
-      SPRING_FLYWAY_URL: jdbc:postgresql://postgres_db:5432/elearning_db
-      SPRING_FLYWAY_USER: elearning
-      SPRING_FLYWAY_PASSWORD: securepass123
-
-      # MongoDB
+      # Conexão com MongoDB
       SPRING_DATA_MONGODB_URI: mongodb://root:mongopass123@mongo_db:27017/elearning?authSource=admin&authMechanism=SCRAM-SHA-256
 
-      # Redis (corrigido)
+      # Conexão com Redis
       SPRING_DATA_REDIS_HOST: redis_server
-      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PORT: "6379"
       SPRING_DATA_REDIS_PASSWORD: redispass123
 
-      # JWT
-      JWT_SECRET: mySecretKey1234567890abcdefghijklmnopqrstuv
-      JWT_EXPIRATION: 86400
+      # Otimizações
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_OPEN-IN-VIEW: "false"
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "10MB"
 
-      # Logging detalhado
-      LOGGING_LEVEL_COM_ELEARNING: DEBUG
-      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: DEBUG
-      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB: DEBUG
-      
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5

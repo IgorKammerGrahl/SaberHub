@@ -1,6 +1,7 @@
 package com.elearning.security;
 
 import com.elearning.model.Usuario;
+import com.elearning.model.Role;
 import com.elearning.repository.postgres.UsuarioRepository;
 import com.elearning.security.jwt.JwtUtil;
 import com.elearning.security.payload.LoginRequest;
@@ -22,8 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.elearning.model.Role;
-
 
 @RestController
 @RequestMapping("/api/auth")
@@ -35,9 +34,9 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     public AuthController(
-        AuthenticationManager authenticationManager, 
+        AuthenticationManager authenticationManager,
         JwtUtil jwtUtil,
-        UsuarioRepository usuarioRepository, 
+        UsuarioRepository usuarioRepository,
         PasswordEncoder passwordEncoder
     ) {
         this.authenticationManager = authenticationManager;
@@ -50,15 +49,15 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
-                loginRequest.email(), 
+                loginRequest.email(),
                 loginRequest.senha()
             )
         );
-        
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String jwt = jwtUtil.generateToken(userDetails);
-        
+
         return ResponseEntity.ok(new LoginResponse(jwt));
     }
 
@@ -68,7 +67,6 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Email já está em uso!");
         }
 
-        // Evitar persistir diretamente o objeto vindo da requisição
         Usuario novoUsuario = new Usuario(
             usuario.getEmail(),
             passwordEncoder.encode(usuario.getSenha()),

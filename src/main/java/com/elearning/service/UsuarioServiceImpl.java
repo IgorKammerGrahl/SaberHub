@@ -3,15 +3,11 @@ package com.elearning.service;
 import com.elearning.model.Usuario;
 import com.elearning.repository.postgres.UsuarioRepository;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-
-
-
 @Service
-public class UsuarioServiceImpl implements UserDetailsService {
+public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
 
@@ -24,14 +20,19 @@ public class UsuarioServiceImpl implements UserDetailsService {
         Usuario usuario = usuarioRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
         
-        // Log da role e autoridades
-        System.out.println("DEBUG - Role do usuário: " + usuario.getRole());
-        System.out.println("DEBUG - Autoridades carregadas: " + usuario.getRole().getAuthorities());
+        System.out.println("DEBUG - Role do usuário: " + usuario.getRole()); // Deve imprimir "ADMIN"
+        System.out.println("DEBUG - Autoridades: " + usuario.getRole().getAuthorities()); // Deve listar ROLE_ADMIN + permissões
         
         return new org.springframework.security.core.userdetails.User(
             usuario.getEmail(),
             usuario.getSenha(),
             usuario.getRole().getAuthorities()
         );
+    }
+
+    @Override // Agora válido (vem de UsuarioService)
+    public Usuario buscarPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
     }
 }

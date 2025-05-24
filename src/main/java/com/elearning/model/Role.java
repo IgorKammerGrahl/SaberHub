@@ -5,7 +5,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public enum Role {
     ADMIN(List.of(Permissao.ADMIN_LEITURA, Permissao.ADMIN_ESCRITA)),
@@ -17,19 +16,14 @@ public enum Role {
         this.permissoes = permissoes;
     }
 
-    public List<GrantedAuthority> getAuthorities() {
+   public List<GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        
-        // 1. Adicione a ROLE primeiro
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.name())); // ROLE_ADMIN
-        
-        // 2. Adicione as permissões
-        authorities.addAll(
-            permissoes.stream()
-                .map(p -> new SimpleGrantedAuthority(p.getPermissao()))
-                .collect(Collectors.toList())
-        );
-        
+        System.out.println("DEBUG - Adicionando ROLE: ROLE_" + this.name()); // Log para debug
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
+        for (Permissao permissao : permissoes) {
+            System.out.println("DEBUG - Adicionando permissão: " + permissao.getPermissao()); // Log para debug
+            authorities.add(new SimpleGrantedAuthority(permissao.getPermissao()));
+        }
         return authorities;
     }
 }
