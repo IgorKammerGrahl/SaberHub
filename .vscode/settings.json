@@ -1,4 +1,16 @@
 {
-    "java.compile.nullAnalysis.mode": "automatic",
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "BcryptHashGenerator",
+            "request": "launch",
+            "mainClass": "com.seupacote.BcryptHashGenerator",
+            "projectName": "elearning-platform",
+            "classPaths": [
+                "${workspaceFolder}/target/classes",
+                "${workspaceFolder}/target/dependency/*"
+            ]
+        }
+    ]
 }
