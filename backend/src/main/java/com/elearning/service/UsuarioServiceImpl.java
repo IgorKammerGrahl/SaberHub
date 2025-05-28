@@ -23,11 +23,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         System.out.println("DEBUG - Role do usuário: " + usuario.getRole()); // Deve imprimir "ADMIN"
         System.out.println("DEBUG - Autoridades: " + usuario.getRole().getAuthorities()); // Deve listar ROLE_ADMIN + permissões
         
-        return new org.springframework.security.core.userdetails.User(
-            usuario.getEmail(),
-            usuario.getSenha(),
-            usuario.getRole().getAuthorities()
-        );
+        return usuario;
     }
 
     @Override // Agora válido (vem de UsuarioService)

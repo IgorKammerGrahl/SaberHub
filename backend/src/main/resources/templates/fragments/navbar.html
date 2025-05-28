@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+    <nav th:fragment="navbarFragment" class="bg-gray-800 text-white p-4 fixed w-full top-0 z-50 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <a th:href="@{/}" class="text-xl font-bold hover:text-indigo-300 transition-colors">
+                SaberHub
+            </a>
+            <div class="space-x-4 flex items-center">
+                <a th:href="@{/cursos}" class="hover:text-indigo-300 transition-colors">Cursos</a>
+                <span sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/login}" class="hover:text-indigo-300 transition-colors">Login</a>
+                    <a th:href="@{/register}" class="bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Registrar</a>
+                </span>
+                <span sec:authorize="isAuthenticated()">
+                    <a th:href="@{/cursos/novo}" class="bg-green-500 hover:bg-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Criar Curso</a>
+                    <!-- Adicionar link para o painel do usuário/perfil futuramente -->
+                    <!-- <a th:href="@{/perfil}" class="hover:text-indigo-300">Meu Perfil</a> -->
+                    <span class="text-gray-400 text-sm" th:text="'Olá, ' + ${#authentication.name} + '!'">Olá, Usuário!</span>
+                    <form th:action="@{/logout}" method="post" class="inline">
+                        <button type="submit" class="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            Sair
+                        </button>
+                    </form>
+                </span>
+            </div>
+        </div>
+    </nav>
+    <!-- Espaçador para compensar a navbar fixa -->
+    <div class="h-16"></div> 
+</body>
+</html>

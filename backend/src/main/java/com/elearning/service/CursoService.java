@@ -1,35 +1,13 @@
 package com.elearning.service;
 
+import com.elearning.dto.CursoCriacaoDTO;
 import com.elearning.model.Curso;
-import com.elearning.repository.mongo.CursoRepository;
-
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
+import com.elearning.model.Usuario; // Importar Usuario
 import java.util.List;
+import java.util.Optional;
 
-@Service
-public class CursoService {
-
-    private final CursoRepository cursoRepository;
-
-    public CursoService(CursoRepository cursoRepository) {
-        this.cursoRepository = cursoRepository;
-    }
-
-    public Curso criarCurso(Curso curso) {
-        return cursoRepository.save(curso);
-    }
-
-    public List<Curso> listarTodos() {
-        return cursoRepository.findAll();
-    }
-
-    public Curso buscarPorId(String id) {
-        return cursoRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, 
-                        "Curso não encontrado com ID: " + id
-                ));
-    }
+public interface CursoService {
+    Curso criarCurso(CursoCriacaoDTO cursoDTO, Usuario criador); // Adicionar Usuario criador
+    List<Curso> listarTodos();
+    Optional<Curso> buscarPorId(String id);
 }

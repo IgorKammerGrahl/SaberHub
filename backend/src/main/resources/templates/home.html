@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma E-learning</title>
+    <!-- Você pode adicionar um link para um arquivo CSS aqui -->
+    <!-- <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" /> -->
+    <script src="https://cdn.tailwindcss.com"></script> <!-- Tailwind via CDN para teste rápido -->
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navbar Simples (será melhorada depois) -->
+    <nav class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a th:href="@{/}" class="text-xl font-bold">E-learning</a>
+            <div>
+                <a th:href="@{/cursos}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Cursos</a>
+                <!-- Links de Login/Registro/Logout (adicionaremos lógica depois) -->
+                <span sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/login}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Login</a>
+                    <a th:href="@{/register}" class="bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Registrar</a>
+                </span>
+                <span sec:authorize="isAuthenticated()">
+                     <a th:href="@{/cursos/novo}" class="bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Criar Curso</a>
+                    <a th:href="@{/logout}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Sair</a>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-8">
+        <header class="text-center py-16 bg-white shadow-md rounded-lg">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4" th:text="${tituloBoasVindas}">Bem-vindo à Plataforma!</h1>
+            <p class="text-lg text-gray-600" th:text="${mensagemBoasVindas}">Explore nossos cursos e comece a aprender hoje mesmo.</p>
+            <div class="mt-8">
+                <a th:href="@{/cursos}"
+                   class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 transition duration-300">
+                    Ver Cursos
+                </a>
+            </div>
+        </header>
+
+        <!-- Conteúdo adicional da home page pode vir aqui -->
+
+    </div>
+
+    <!-- Footer Simples -->
+    <footer class="text-center p-4 mt-8 text-gray-600">
+        © <span th:text="${#dates.year(#dates.createNow())}">2024</span> Plataforma E-learning. Todos os direitos reservados.
+    </footer>
+
+</body>
+</html>

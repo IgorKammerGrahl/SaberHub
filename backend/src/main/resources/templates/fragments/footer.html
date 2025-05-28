@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <footer th:fragment="footerFragment" class="text-center p-4 mt-auto text-gray-600 border-t border-gray-200">
+        © <span th:text="${#dates.year(#dates.createNow())}"></span> Plataforma E-learning. Todos os direitos reservados.
+    </footer>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nossos Cursos - Plataforma E-learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" /> -->
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+    <!-- Incluir Navbar (assumindo que você criará fragments/navbar.html) -->
+    <div th:replace="~{fragments/navbar :: navbarFragment}">Navbar aqui</div>
+
+    <main class="flex-grow container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-8 border-b pb-4">
+            <h1 class="text-3xl font-bold text-gray-900">
+                Nossos Cursos
+            </h1>
+            <!-- Botão para criar curso, visível apenas para usuários autenticados (exemplo) -->
+            <div sec:authorize="isAuthenticated()">
+                <a th:href="@{/cursos/novo}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                    Criar Novo Curso
+                </a>
+            </div>
+        </div>
+
+        <div th:if="${mensagemInfo}" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative text-center mb-6" role="alert">
+            <span th:text="${mensagemInfo}"></span>
+        </div>
+
+        <div th:if="${not #lists.isEmpty(cursos)}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Iterar sobre a lista de cursos -->
+            <div th:each="curso : ${cursos}" class="bg-white rounded-xl shadow-lg overflow-hidden transform transition hover:scale-105 flex flex-col">
+                <img th:src="${curso.imagemUrl != null ? curso.imagemUrl : 'https://via.placeholder.com/300x200?text=' + curso.titulo}"
+                     th:alt="${curso.titulo}"
+                     class="w-full h-48 object-cover"/>
+                <div class="p-6 space-y-3 flex flex-col flex-grow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full uppercase tracking-wider font-semibold"
+                              th:text="${curso.nivel != null ? curso.nivel : 'N/D'}">Nível</span>
+                        <span class="text-xs text-gray-500"
+                              th:text="${curso.duracao != null ? curso.duracao : 'N/D'}">Duração</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800" th:text="${curso.titulo}">Título do Curso</h3>
+                    <p class="text-gray-600 text-sm line-clamp-3 flex-grow" th:text="${curso.descricao}">
+                        Breve descrição do curso...
+                    </p>
+                    <div th:if="${curso.criadorNome}" class="text-xs text-gray-500 mt-1">
+                        Criado por: <span th:text="${curso.criadorNome}"></span>
+                    </div>
+                    <div class="mt-auto pt-3">
+                        <a th:href="@{/cursos/{id}(id=${curso.id})}"
+                           class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
+                            Ver Detalhes
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:unless="${not #lists.isEmpty(cursos)} and ${mensagemInfo == null}" class="text-center py-10">
+            <p class="text-xl text-gray-600" th:unless="${mensagemInfo}">Nenhum curso disponível no momento.</p>
+            <!-- A mensagem de info já é exibida acima se presente -->
+        </div>
+    </main>
+
+    <!-- Incluir Footer (assumindo que você criará fragments/footer.html) -->
+    <div th:replace="~{fragments/footer :: footerFragment}">Footer aqui</div>
+
+</body>
+</html>

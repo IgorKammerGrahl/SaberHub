@@ -1,6 +1,8 @@
 package com.elearning.security.payload;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record LoginRequest(
-    String email,
-    String senha
+    @NotBlank String email,
+    @NotBlank String senha
 ) {}

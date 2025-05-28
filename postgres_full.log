@@ -1,0 +1,58 @@
+[2Kpostgres_db  | The files belonging to this database system will be owned by user "postgres".
+[2Kpostgres_db  | This user must also own the server process.
+[2Kpostgres_db  | 
+[2Kpostgres_db  | The database cluster will be initialized with locale "en_US.utf8".
+[2Kpostgres_db  | The default database encoding has accordingly been set to "UTF8".
+[2Kpostgres_db  | The default text search configuration will be set to "english".
+[2Kpostgres_db  | 
+[2Kpostgres_db  | Data page checksums are disabled.
+[2Kpostgres_db  | 
+[2Kpostgres_db  | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+[2Kpostgres_db  | creating subdirectories ... ok
+[2Kpostgres_db  | selecting dynamic shared memory implementation ... posix
+[2Kpostgres_db  | selecting default max_connections ... 100
+[2Kpostgres_db  | selecting default shared_buffers ... 128MB
+[2Kpostgres_db  | selecting default time zone ... Etc/UTC
+[2Kpostgres_db  | creating configuration files ... ok
+[2Kpostgres_db  | running bootstrap script ... ok
+[2Kpostgres_db  | performing post-bootstrap initialization ... ok
+[2Kpostgres_db  | syncing data to disk ... ok
+[2Kpostgres_db  | 
+[2Kpostgres_db  | 
+[2Kpostgres_db  | Success. You can now start the database server using:
+[2Kpostgres_db  | 
+[2Kpostgres_db  |     pg_ctl -D /var/lib/postgresql/data -l logfile start
+[2Kpostgres_db  | 
+[2Kpostgres_db  | initdb: warning: enabling "trust" authentication for local connections
+[2Kpostgres_db  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+[2Kpostgres_db  | waiting for server to start....2025-05-27 19:06:37.372 UTC [48] LOG:  starting PostgreSQL 15.13 (Debian 15.13-1.pgdg120+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit
+[2Kpostgres_db  | 2025-05-27 19:06:37.372 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+[2Kpostgres_db  | 2025-05-27 19:06:37.374 UTC [51] LOG:  database system was shut down at 2025-05-27 19:06:37 UTC
+[2Kpostgres_db  | 2025-05-27 19:06:37.377 UTC [48] LOG:  database system is ready to accept connections
+[2Kpostgres_db  |  done
+[2Kpostgres_db  | server started
+[2Kpostgres_db  | CREATE DATABASE
+[2Kpostgres_db  | 
+[2Kpostgres_db  | 
+[2Kpostgres_db  | /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+[2Kpostgres_db  | 
+[2Kpostgres_db  | 2025-05-27 19:06:37.533 UTC [48] LOG:  received fast shutdown request
+[2Kpostgres_db  | waiting for server to shut down....2025-05-27 19:06:37.534 UTC [48] LOG:  aborting any active transactions
+[2Kpostgres_db  | 2025-05-27 19:06:37.536 UTC [48] LOG:  background worker "logical replication launcher" (PID 54) exited with exit code 1
+[2Kpostgres_db  | 2025-05-27 19:06:37.536 UTC [49] LOG:  shutting down
+[2Kpostgres_db  | 2025-05-27 19:06:37.536 UTC [49] LOG:  checkpoint starting: shutdown immediate
+[2Kpostgres_db  | 2025-05-27 19:06:37.574 UTC [49] LOG:  checkpoint complete: wrote 918 buffers (5.6%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.012 s, sync=0.024 s, total=0.038 s; sync files=301, longest=0.004 s, average=0.001 s; distance=4222 kB, estimate=4222 kB
+[2Kpostgres_db  | 2025-05-27 19:06:37.577 UTC [48] LOG:  database system is shut down
+[2Kpostgres_db  |  done
+[2Kpostgres_db  | server stopped
+[2Kpostgres_db  | 
+[2Kpostgres_db  | PostgreSQL init process complete; ready for start up.
+[2Kpostgres_db  | 
+[2Kpostgres_db  | 2025-05-27 19:06:37.652 UTC [1] LOG:  starting PostgreSQL 15.13 (Debian 15.13-1.pgdg120+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit
+[2Kpostgres_db  | 2025-05-27 19:06:37.652 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+[2Kpostgres_db  | 2025-05-27 19:06:37.652 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+[2Kpostgres_db  | 2025-05-27 19:06:37.653 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+[2Kpostgres_db  | 2025-05-27 19:06:37.656 UTC [64] LOG:  database system was shut down at 2025-05-27 19:06:37 UTC
+[2Kpostgres_db  | 2025-05-27 19:06:37.659 UTC [1] LOG:  database system is ready to accept connections
+[2Kpostgres_db  | 2025-05-27 19:11:37.756 UTC [62] LOG:  checkpoint starting: time
+[2Kpostgres_db  | 2025-05-27 19:11:49.817 UTC [62] LOG:  checkpoint complete: wrote 123 buffers (0.8%); 0 WAL file(s) added, 0 removed, 0 recycled; write=12.038 s, sync=0.007 s, total=12.061 s; sync files=72, longest=0.001 s, average=0.001 s; distance=514 kB, estimate=514 kB

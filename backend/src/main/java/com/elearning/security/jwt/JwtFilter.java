@@ -17,6 +17,9 @@ import com.elearning.service.UsuarioServiceImpl;
 
 import java.io.IOException;
 
+/**
+ * Filtro JWT que autentica requisições API, ignorando caminhos públicos e páginas de formulário.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -29,31 +32,47 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
         @NonNull HttpServletRequest request,
         @NonNull HttpServletResponse response,
-        @NonNull FilterChain chain
+        @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        // Se for um path público, não processa o filtro aqui
+        if (shouldNotFilter(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String token = getTokenFromRequest(request);
-        log.debug("\uD83D\uDD11 Token recebido: {}", token);
+        log.debug("🔑 Token recebido para {}: {}", request.getServletPath(), token);
 
         if (token != null && jwtUtil.validateToken(token)) {
-            log.debug("✅ Token válido");
+            log.debug("✅ Token válido para {}", request.getServletPath());
             String username = jwtUtil.extractUsername(token);
-            log.debug("\uD83D\uDC64 Usuário extraído: {}", username);
+            log.debug("👤 Usuário extraído: {}", username);
 
-            UserDetails userDetails = usuarioService.loadUserByUsername(username);
-            log.debug("\uD83D\uDD13 Autoridades carregadas: {}", userDetails.getAuthorities());
-
-            UsernamePasswordAuthenticationToken auth =
-                new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.getAuthorities()
-                );
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = usuarioService.loadUserByUsername(username);
+                if (userDetails != null) {
+                    log.debug("🔐 Autoridades carregadas: {}", userDetails.getAuthorities());
+                    UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                        );
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    log.info("Usuário {} autenticado via JWT para {}", username, request.getServletPath());
+                } else {
+                    log.warn("UserDetails não encontrado para o usuário {} do token JWT", username);
+                }
+            }
         } else {
-            log.error("❌ Token inválido ou ausente");
+            if (token == null) {
+                log.trace("Nenhum token JWT encontrado na requisição para {}", request.getServletPath());
+            } else {
+                log.warn("❌ Token JWT inválido para {}: {}", request.getServletPath(), token);
+            }
         }
-        chain.doFilter(request, response);
+
+        filterChain.doFilter(request, response);
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
@@ -67,9 +86,29 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.startsWith("/api/auth") ||
-               path.startsWith("/actuator") ||
-               path.startsWith("/swagger-ui") ||
-               path.startsWith("/v3/api-docs");
+        String method = request.getMethod();
+
+        // Paths que NÃO DEVEM ser processados pelo JwtFilter (públicos ou com formLogin)
+        if (path.startsWith("/auth/") ||
+            path.equals("/login") ||
+            (path.equals("/register") && "GET".equals(method)) ||
+            ("GET".equals(method) && (
+                path.equals("/") ||
+                path.startsWith("/cursos") ||
+                path.startsWith("/css/") ||
+                path.startsWith("/js/") ||
+                path.startsWith("/images/") ||
+                path.equals("/favicon.ico")
+            )) ||
+            path.startsWith("/actuator") ||
+            path.startsWith("/swagger-ui") ||
+            path.startsWith("/v3/api-docs") ||
+            path.startsWith("/webjars/")) {
+            log.trace("JwtFilter NÃO será aplicado para o path: {} {}", method, path);
+            return true;
+        }
+
+        log.trace("JwtFilter SERÁ aplicado para o path: {} {}", method, path);
+        return false;
     }
 }

@@ -1,4 +1,3 @@
-# docker-compose.yml
 version: '3.8'
 
 services:
@@ -19,6 +18,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped # Adicionado para reinício automático
 
   # Banco de Dados NoSQL
   mongodb:
@@ -36,14 +36,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped # Adicionado para reinício automático
 
-  # Cache em Memória
+  # Cache em Memória e Message Broker
   redis:
     image: redis:7.2-alpine
     container_name: redis_server
     command: redis-server --requirepass redispass123 --bind 0.0.0.0
-    environment:
-      REDIS_PASSWORD: redispass123
+    # environment: # REDIS_PASSWORD não é uma variável de ambiente padrão para a imagem do Redis, a senha é passada no comando
+    #   REDIS_PASSWORD: redispass123 # Removido pois a senha é configurada via 'command'
     volumes:
       - redis_data:/data
     networks:
@@ -53,11 +54,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped # Adicionado para reinício automático
 
-  # Backend Spring Boot
+  # Backend Spring Boot (agora também servindo o frontend via Thymeleaf)
   backend:
     build: ./backend
-    container_name: spring_backend
+    container_name: spring_backend_app # Nome do container ajustado para clareza (opcional)
     depends_on:
       postgres:
         condition: service_healthy
@@ -68,49 +70,33 @@ services:
     networks:
       - elearning-net
     ports:
+      # A porta 8081 do container será acessível na porta 8081 do seu host.
+      # Seus usuários acessarão a aplicação (incluindo páginas Thymeleaf) em http://localhost:8081
       - "8081:8081"
-    command: ["java", "-jar", "app.jar"]
+    # command: ["java", "-jar", "app.jar"] # O ENTRYPOINT do Dockerfile do backend já cuida disso
     environment:
       - SERVER_PORT=8081
       - SPRING_PROFILES_ACTIVE=docker
-      - JWT_SECRET=sua_chave_secreta_super_forte_aqui_base64_pelo_menos_32_bytes
-      - JWT_EXPIRATION=86400
+      - JWT_SECRET=sua_chave_secreta_super_forte_aqui_base64_pelo_menos_32_bytes # Idealmente, use segredos do Docker ou variáveis de ambiente do host
+      - JWT_EXPIRATION=86400 # 24 horas em segundos
+      # PostgreSQL
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/elearning_db
       - SPRING_DATASOURCE_USERNAME=elearning
       - SPRING_DATASOURCE_PASSWORD=securepass123
-      - SPRING_DATA_MONGODB_URI=mongodb://root:mongopass123@mongo_db:27017/elearning?authSource=admin&authMechanism=SCRAM-SHA-256
+      # MongoDB
+      - SPRING_DATA_MONGODB_URI=mongodb://root:mongopass123@mongo_db:27017/elearning_db?authSource=admin&authMechanism=SCRAM-SHA-256 # Nome do banco de dados mongo 'elearning_db'
+      # Redis
       - SPRING_DATA_REDIS_HOST=redis_server
       - SPRING_DATA_REDIS_PASSWORD=redispass123
       - SPRING_DATA_REDIS_PORT=6379
+      # Outras configurações que seu backend possa precisar
     healthcheck:
+      # Ajuste o path do healthcheck se o base-path do actuator mudou ou se há um healthcheck específico
       test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
-
-  # Frontend React
-  frontend:
-    build: ./frontend
-    container_name: react_frontend
-    ports:
-      - "3000:80"
-    networks:
-      - elearning-net
-    depends_on:
-      - backend
-    environment:
-      - REACT_APP_API_URL=/api
-      - REACT_APP_ENV=production
-    deploy:
-      resources:
-        limits:
-          memory: "512m"
-          cpus: "0.5"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    restart: unless-stopped # Adicionado para reinício automático
 
 volumes:
   pg_data:
@@ -120,8 +106,9 @@ volumes:
 networks:
   elearning-net:
     driver: bridge
-    attachable: true
-    ipam:
-      config:
-        - subnet: 172.20.0.0/24
-          gateway: 172.20.0.1
+    name: elearning-net # Nome explícito para a rede
+    # attachable: true # Geralmente não é necessário para a maioria dos casos de uso
+    # ipam: # Configuração de IPAM é opcional e geralmente não necessária
+    #   config:
+    #     - subnet: 172.20.0.0/24
+    #       gateway: 172.20.0.1
